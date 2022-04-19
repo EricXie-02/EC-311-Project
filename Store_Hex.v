@@ -19,15 +19,23 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
+//Takes in a 4 bit binary number and stores the number when enter is high, when four 4 bit numbers are entered
+//the module then concatenates the 4 numbers into the output password
 module Store_Hex(
+    //Input hex_in takes in a 4 bit binary number representing the position of the switches
     input [3:0] hex_in,
+    //Input reset resets the hex input process by resetting the counter
     input reset,
+    //Input enter stores the current hex_in into hex[i]
     input enter,
+    //Output of the 4 hex number inputs as a 16 bit password
     output reg [15:0] password
     );
     
+    //Counts the number of hex numbers the user has entered, when it reaches 2'b11 and the user presses enter,
+    //the 4 stored hex numbers are concatenated into password
     reg [1:0] counter;
+    //hex[i] stores the past inputted hex numbers
     reg [3:0] hex1,hex2,hex3,hex4;
     
     always @(enter or reset)begin
