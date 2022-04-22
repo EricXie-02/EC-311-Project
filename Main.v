@@ -74,13 +74,14 @@ module Main(
                 Current_Password = Password_Set;
            end
            else if(set && Current_Password) begin//If the user presses the set button and Password_Set exists
-                state = LOCKED;
-                Password_Set = Undefined_16bit;
-                IsGuessing_NotIsSetting = 1'b1;
+                state = LOCKED; 
+                Password_Set = Undefined_16bit; //Reset PassWord_Set for later
+                IsGuessing_NotIsSetting = 1'b1; //User will begin to guess the password
            end
         end
         
         LOCKED: begin
+        //In locked state, we should only be able to guess the password
             if(Guess_Password == Current_Password) begin
                 state = UNLOCKED;
                 Guess_Password = Undefined_16bit;
@@ -89,6 +90,7 @@ module Main(
         end
         
         UNLOCKED: begin
+        //Basically behaves the same as initial state
             if(change && Password_Set) begin
                 Current_Password = Password_Set;
             end
