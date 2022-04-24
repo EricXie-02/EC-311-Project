@@ -27,23 +27,27 @@ module Main(
     input set,
     input change,
     input enter,
-    output reg [15:0] Current_Password
+    output reg [15:0] Current_Password,
+    
+    // SSD outputs
+    output reg [7:0] Anode_Activate,
+    output reg [6:0] LED_out,
     
     
     //test outputs
-    ,output reg [1:0] state
+    output reg [1:0] state
     ,reg local_reset
     );
     
     //reg [1:0] state; //stores the current state of the lock (initial,locked,unlocked
     
     //Sets parameters of the states of the lock
-    parameter INITIAL = 2'b00;
-    parameter LOCKED = 2'b01;
-    parameter UNLOCKED = 2'b10;    
+    parameter INITIAL = 2'b00,
+              LOCKED = 2'b01,
+              UNLOCKED = 2'b10;    
     
     //stores 1 if the user is guessing a password, 0 if the user is setting the password
-    reg IsGuessing_NotIsSetting;
+    reg IsGuessing_NotIsSetting; //enable for store hex
     
     //Stores the user's guess of the password
     wire [15:0] Guess_Password;
@@ -54,7 +58,7 @@ module Main(
     //Stores what the current password is
     //reg [15:0] Current_Password;
     
-    //Stays as a 16 bit long undefined bus, used for resetting, Guess_Password,Password_Set, and Current_Password
+    //Stays as a 16 bit long undefined bus, used for resetting Current_Password
     reg [15:0] Undefined_16bit;
     
     //Reg used to reset guess_password and Password_Set to 
@@ -118,5 +122,11 @@ module Main(
             local_reset = 1'b0;
         end
     end
+    
+    
+    hex_number_ssd(clk, reset, Anode_Activate, LED_out, state, );//fill in to add the 4 hex numbers in setting mode
+    
+    
+    
     
 endmodule
