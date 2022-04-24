@@ -28,6 +28,8 @@ module Store_Hex(
     input reset,
     //Input enter stores the current hex_in into hex[i]
     input enter,
+
+    input enable,
     //Output of the 4 hex number inputs as a 16 bit password
     output reg [15:0] password
     );
@@ -38,11 +40,15 @@ module Store_Hex(
     //hex[i] stores the past inputted hex numbers
     reg [3:0] hex1,hex2,hex3,hex4;
     
-    always @(enter or reset)begin
+    reg [15:0] undefined_16bit;
+    
+    always @(posedge enter or posedge reset)begin
         if(reset) begin
             counter = 2'b00;
+            password = undefined_16bit;
+            //reset = 1'b0;
         end
-        else if(enter) begin
+        else if(enter && enable) begin
             case(counter)
                 2'b00: begin
                     hex1 = hex_in;

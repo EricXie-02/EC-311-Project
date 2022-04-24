@@ -21,15 +21,21 @@
 
 
 module Main(
+    input clk,
     input [3:0] hex_in,
     input reset,
     input set,
     input change,
     input enter,
-    output reg [15:0] current_password
+    output reg [15:0] Current_Password
+    
+    
+    //test outputs
+    ,output reg [1:0] state
+    ,reg local_reset
     );
     
-    reg state; //stores the current state of the lock (initial,locked,unlocked
+    //reg [1:0] state; //stores the current state of the lock (initial,locked,unlocked
     
     //Sets parameters of the states of the lock
     parameter INITIAL = 2'b00;
@@ -40,31 +46,32 @@ module Main(
     reg IsGuessing_NotIsSetting;
     
     //Stores the user's guess of the password
-    reg [15:0] Guess_Password;
+    wire [15:0] Guess_Password;
     
     //Stores what the user wants to change the password to
-    reg [15:0] Password_Set;
+    wire [15:0] Password_Set;
     
     //Stores what the current password is
-    reg [15:0] Current_Password;
+    //reg [15:0] Current_Password;
     
     //Stays as a 16 bit long undefined bus, used for resetting, Guess_Password,Password_Set, and Current_Password
     reg [15:0] Undefined_16bit;
     
+    //Reg used to reset guess_password and Password_Set to 
+    //reg local_reset;
+
     
-    Store_2_Hex S2H(hex_in,IsGuessing_NotIsSetting,reset,enter,Guess_Password,Password_Set);
-    
-    
+    Store_2_Hex S2H(hex_in,IsGuessing_NotIsSetting,local_reset,enter,Guess_Password,Password_Set);
     
     always @(posedge reset, posedge set, posedge change, Guess_Password) begin
     
     //resets the state, counter, and is_setting_password
     if (reset == 1'b1) begin
         state = INITIAL;
+        local_reset = 1'b1;
         IsGuessing_NotIsSetting = 1'b0;
-        Guess_Password = Undefined_16bit;
         Current_Password = Undefined_16bit;
-        Current_Password = Undefined_16bit;
+        
     end
     
     case (state)
@@ -75,7 +82,7 @@ module Main(
            end
            else if(set && Current_Password) begin//If the user presses the set button and Password_Set exists
                 state = LOCKED; 
-                Password_Set = Undefined_16bit; //Reset PassWord_Set for later
+                local_reset = 1'b1;
                 IsGuessing_NotIsSetting = 1'b1; //User will begin to guess the password
            end
         end
@@ -84,7 +91,7 @@ module Main(
         //In locked state, we should only be able to guess the password
             if(Guess_Password == Current_Password) begin
                 state = UNLOCKED;
-                Guess_Password = Undefined_16bit;
+                local_reset = 1'b1;
                 IsGuessing_NotIsSetting = 1'b0;
             end
         end
@@ -96,7 +103,7 @@ module Main(
             end
             if(set && Current_Password) begin
                 state = LOCKED;
-                Password_Set = Undefined_16bit;
+                local_reset = 1'b1;
                 IsGuessing_NotIsSetting = 1'b1;
             end
         end
@@ -105,4 +112,11 @@ module Main(
     endcase
     
     end
+    
+    always@(posedge clk) begin
+        if(local_reset) begin
+            local_reset = 1'b0;
+        end
+    end
+    
 endmodule
