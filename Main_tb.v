@@ -25,10 +25,13 @@ module Main_tb();
     reg [3:0] hex_in;
     reg reset,set,change,enter;
     wire [15:0] current_password;
-    wire [1:0] state;
-    wire local_reset;
+    //wire [1:0] state;
+    //wire local_reset;
+    //wire [3:0] hex_guess1, hex_guess2, hex_guess3, hex_guess4, hex_set1, hex_set2, hex_set3, hex_set4;
+    wire [7:0] Anode_Activate;
+    wire [6:0] LED_out;
     
-    Main main1(clk,hex_in,reset,set,change,enter,current_password,state,local_reset);
+    Main main1(clk,hex_in,reset,set,change,enter,current_password, Anode_Activate, LED_out);
     
     initial begin
         clk = 1'b0;

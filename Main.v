@@ -30,16 +30,17 @@ module Main(
     output reg [15:0] Current_Password,
     
     // SSD outputs
-    output reg [7:0] Anode_Activate,
-    output reg [6:0] LED_out,
+    output wire [7:0] Anode_Activate,
+    output wire [6:0] LED_out
     
     
     //test outputs
-    output reg [1:0] state
-    ,reg local_reset
+    //output reg [1:0] state
+    //,reg local_reset,
+    //output wire [3:0] hex_guess1, hex_guess2, hex_guess3, hex_guess4, hex_set1, hex_set2, hex_set3, hex_set4
     );
     
-    //reg [1:0] state; //stores the current state of the lock (initial,locked,unlocked
+    reg [1:0] state; //stores the current state of the lock (initial,locked,unlocked
     
     //Sets parameters of the states of the lock
     parameter INITIAL = 2'b00,
@@ -62,12 +63,20 @@ module Main(
     reg [15:0] Undefined_16bit;
     
     //Reg used to reset guess_password and Password_Set to 
-    //reg local_reset;
+    reg local_reset;
+    
+    //Stores the most recent hex inputs of the guessing and setting mode
+    wire [3:0] hex_guess1, hex_guess2, hex_guess3, hex_guess4, hex_set1, hex_set2, hex_set3, hex_set4;
+    
+    //Stores the number of hex numbers entered of the current guess or set
+    reg [1:0] counter_guess, counter_set;
 
     
-    Store_2_Hex S2H(hex_in,IsGuessing_NotIsSetting,local_reset,enter,Guess_Password,Password_Set);
+    Store_2_Hex S2H(hex_in,IsGuessing_NotIsSetting,local_reset,enter,Guess_Password,Password_Set,hex_guess1,hex_guess2,hex_guess3,hex_guess4,hex_set1,hex_set2,hex_set3,hex_set4);
     
-    always @(posedge reset, posedge set, posedge change, Guess_Password) begin
+    //always @(posedge reset, posedge set, posedge change, posedge enter) begin
+    
+    always @(*) begin
     
     //resets the state, counter, and is_setting_password
     if (reset == 1'b1) begin
@@ -76,6 +85,10 @@ module Main(
         IsGuessing_NotIsSetting = 1'b0;
         Current_Password = Undefined_16bit;
         
+    end
+    
+    if (local_reset) begin
+        local_reset = 1'b0;
     end
     
     case (state)
@@ -112,19 +125,19 @@ module Main(
             end
         end
             
-            
     endcase
     
     end
     
+    /*
     always@(posedge clk) begin
         if(local_reset) begin
             local_reset = 1'b0;
         end
     end
+    */
     
-    
-    hex_number_ssd(clk, reset, Anode_Activate, LED_out, state, );//fill in to add the 4 hex numbers in setting mode
+    hex_number_ssd ssd1(clk, reset, Anode_Activate, LED_out, state, hex_set1, hex_set2, hex_set3, hex_set4);//fill in to add the 4 hex numbers in setting mode
     
     
     

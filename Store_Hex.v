@@ -31,22 +31,28 @@ module Store_Hex(
 
     input enable,
     //Output of the 4 hex number inputs as a 16 bit password
-    output reg [15:0] password
-    );
+    output reg [15:0] password,
+    
+    //hex[i] stores the past inputted hex numbers
+    output reg [3:0] hex1,hex2,hex3,hex4,
     
     //Counts the number of hex numbers the user has entered, when it reaches 2'b11 and the user presses enter,
     //the 4 stored hex numbers are concatenated into password
-    reg [1:0] counter;
-    //hex[i] stores the past inputted hex numbers
-    reg [3:0] hex1,hex2,hex3,hex4;
+    output reg [1:0] counter
+    );
     
     reg [15:0] undefined_16bit;
+    reg [3:0] undefined_hex;
+    
     
     always @(posedge enter or posedge reset)begin
         if(reset) begin
             counter = 2'b00;
             password = undefined_16bit;
-            //reset = 1'b0;
+            hex1 = undefined_hex;
+            hex2 = undefined_hex;
+            hex3 = undefined_hex;
+            hex4 = undefined_hex;
         end
         else if(enter && enable) begin
             case(counter)
