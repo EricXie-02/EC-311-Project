@@ -24,17 +24,81 @@ module hex_number_ssd(
     input clock,
     input reset,
     output reg [7:0] Anode_Activate, // 8 anode signals for the SSD
-    output reg [6:0] LED_out // cathode patterns 
+    output reg [6:0] LED_out, // cathode patterns
+    
+    input enter_button,
+    input set_button,
+    input change_button,
+    
+    input [3:0] hex1,
+    input [3:0] hex2,
+    input [3:0] hex3,
+    input [3:0] hex4,
+    
+    input [1:0] counter,
+    input [1:0] state
+    
     );
+    reg [5:0] enumerated_state;
     reg [5:0] LED_BCD;
     reg [19:0] refresh_counter;
     
     wire [2:0] LED_activating_counter;
     
+    reg [4:0] h1, h2, h3, h4;
+    
+    
+    
+    
+    
+    
+    always @(*)
+    begin
+        if(state == 2'b00 || state == 2'b10)
+        begin
+            h1 <= 5'b10100;
+            h2 <= 5'b10100;
+            h3 <= 5'b10100;
+            h4 <= 5'b10100;
+        end
+        else if(state == 2'b00 && counter == 2'b01)
+        begin
+            h1 <= {1'b0, hex1};
+            h2 <= 5'b10100;
+            h3 <= 5'b10100;
+            h4 <= 5'b10100;
+        end
+        else if(state == 2'b00 && counter == 2'b01)
+        begin
+            h1 <= {1'b0, hex1};
+            h2 <= {1'b0, hex2};
+            h3 <= 5'b10100;
+            h4 <= 5'b10100;
+        end
+        else if(state == 2'b00 && counter == 2'b10)
+        begin
+            h1 <= {1'b0, hex1};
+            h2 <= {1'b0, hex2};
+            h3 <= {1'b0, hex3};
+            h4 <= 5'b10100;
+        end
+        else if(state == 2'b00 && counter == 2'b11)
+        begin
+            h1 <= {1'b0, hex1};
+            h2 <= {1'b0, hex2};
+            h3 <= {1'b0, hex3};
+            h4 <= {1'b0, hex4};
+        end
+        
+    end
+    
+    
+    
     always @(posedge clock or posedge reset)
     begin
         if(reset == 1)
             refresh_counter <= 0;
+        
         else
             refresh_counter <= refresh_counter + 1;
     end
@@ -43,35 +107,46 @@ module hex_number_ssd(
     
     always @(*)
     begin
+        case(state)
+            2'b00: enumerated_state <= 5'b10001; // initial
+            2'b01: enumerated_state <= 5'b10011; // unlocked
+            2'b10: enumerated_state <= 5'b10010; // locked
+        endcase
+    end
+    
+    
+    
+    always @(*)
+    begin
         case(LED_activating_counter)
         3'b000: begin
             Anode_Activate = 8'b11101111; 
             // activate LED1 and Deactivate LED2, LED3, LED4
-            LED_BCD = 5'b01010;
+            LED_BCD = enumerated_state;
             // the first digit of the 16-bit number
               end
         3'b001: begin
             Anode_Activate = 8'b11110111; 
             // activate LED2 and Deactivate LED1, LED3, LED4
-            LED_BCD = 5'b00110;
+            LED_BCD = h1;
             // the second digit of the 16-bit number
               end
         3'b010: begin
             Anode_Activate = 8'b11111011; 
             // activate LED3 and Deactivate LED2, LED1, LED4
-            LED_BCD = 5'b01011;
+            LED_BCD = h2;
             // the third digit of the 16-bit number
                 end
         3'b011: begin
             Anode_Activate = 8'b11111101; 
             // activate LED4 and Deactivate LED2, LED3, LED1
-            LED_BCD = 5'b01100;
+            LED_BCD = h3;
             // the fourth digit of the 16-bit number    
                end
         3'b100: begin
             Anode_Activate = 8'b11111110; 
             // activate LED4 and Deactivate LED2, LED3, LED1
-            LED_BCD = 5'b01111;
+            LED_BCD = h4;
             // the fourth digit of the 16-bit number    
                end
                
