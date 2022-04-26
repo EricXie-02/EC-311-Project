@@ -24,29 +24,12 @@ module hex_number_ssd(
     input clock,
     input reset,
     output reg [7:0] Anode_Activate, // 8 anode signals for the SSD
-    output reg [6:0] LED_out, // cathode patterns
-    
-    input [1:0] state,
-    
-    input [3:0] hex1,
-    input [3:0] hex2,
-    input [3:0] hex3,
-    input [3:0] hex4
-    
+    output reg [6:0] LED_out // cathode patterns 
     );
-    reg [5:0] enumerated_state;
     reg [5:0] LED_BCD;
     reg [19:0] refresh_counter;
     
     wire [2:0] LED_activating_counter;
-    
-    wire [4:0] h1, h2, h3, h4;
-    
-    assign h1 = {1'b0, hex1};
-    assign h2 = {1'b0, hex2};
-    assign h3 = {1'b0, hex3};
-    assign h4 = {1'b0, hex4};
-    
     
     always @(posedge clock or posedge reset)
     begin
@@ -60,46 +43,35 @@ module hex_number_ssd(
     
     always @(*)
     begin
-        case(state)
-            2'b00: enumerated_state <= 5'b10001;
-            2'b01: enumerated_state <= 5'b10011;
-            2'b10: enumerated_state <= 5'b10010;
-        endcase
-    end
-    
-    
-    
-    always @(*)
-    begin
         case(LED_activating_counter)
         3'b000: begin
             Anode_Activate = 8'b11101111; 
             // activate LED1 and Deactivate LED2, LED3, LED4
-            LED_BCD = enumerated_state;
+            LED_BCD = 5'b01010;
             // the first digit of the 16-bit number
               end
         3'b001: begin
             Anode_Activate = 8'b11110111; 
             // activate LED2 and Deactivate LED1, LED3, LED4
-            LED_BCD = h1;
+            LED_BCD = 5'b00110;
             // the second digit of the 16-bit number
               end
         3'b010: begin
             Anode_Activate = 8'b11111011; 
             // activate LED3 and Deactivate LED2, LED1, LED4
-            LED_BCD = h2;
+            LED_BCD = 5'b01011;
             // the third digit of the 16-bit number
                 end
         3'b011: begin
             Anode_Activate = 8'b11111101; 
             // activate LED4 and Deactivate LED2, LED3, LED1
-            LED_BCD = h3;
+            LED_BCD = 5'b01100;
             // the fourth digit of the 16-bit number    
                end
         3'b100: begin
             Anode_Activate = 8'b11111110; 
             // activate LED4 and Deactivate LED2, LED3, LED1
-            LED_BCD = h4;
+            LED_BCD = 5'b01111;
             // the fourth digit of the 16-bit number    
                end
                
