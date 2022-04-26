@@ -35,8 +35,7 @@ module main2(
     output wire [6:0] LED_out,
     
     output reg [1:0] state,
-    output reg [15:0] Guess_Password,
-    output reg [15:0] Password_Set,
+    output reg [15:0] Current_4hex_Enter,
     output reg [15:0] Current_Password
     
     
@@ -63,50 +62,50 @@ module main2(
     reg [15:0] Undefined_16bit;
     
     //Stores the number of hex numbers entered of the current guess or set
-    reg [2:0] counter_guess, counter_set;
+    reg [2:0] counter;
+    
+    wire hex1,hex2,hex3,hex4;
     
     always@(*) begin
         if (reset) begin
             state = INITIAL;
-            Guess_Password = Undefined_16bit;
-            Password_Set = Undefined_16bit;
+            Current_4hex_Enter = Undefined_16bit;
             Current_Password = Undefined_16bit;
-            counter_guess = 3'b000;
-            counter_set = 3'b000;
+            counter = 3'b000;
         end
         
         case (state)
             LOCKED: begin
                 
-                if(attempt_unlock) begin
-                    if(Guess_Password == Current_Password) begin
+                if(attempt_unlock && counter == 3'b100) begin
+                    if(Current_4hex_Enter == Current_Password) begin
                         state = UNLOCKED;
-                        counter_guess = 3'b000;
                     end
-                    Guess_Password = Undefined_16bit;
+                    Current_4hex_Enter = Undefined_16bit;
+                    counter = 3'b000;
                 end
                 
                 else if(enter) begin
-                    case (counter_guess)
+                    case (counter)
                         3'b000: begin
-                            Guess_Password[15:12] = hex_in;
-                            counter_guess = 3'b001;
+                            Current_4hex_Enter[15:12] = hex_in;
+                            counter = 3'b001;
                         end
                         3'b001: begin
-                            Guess_Password[11:8] = hex_in;
-                            counter_guess = 3'b010;
+                            Current_4hex_Enter[11:8] = hex_in;
+                            counter = 3'b010;
                         end
                         3'b010: begin
-                            Guess_Password[7:4] = hex_in;
-                            counter_guess = 3'b011;
+                            Current_4hex_Enter[7:4] = hex_in;
+                            counter = 3'b011;
                         end
                         3'b011: begin
-                            Guess_Password[3:0] = hex_in;
-                            counter_guess = 3'b100;
+                            Current_4hex_Enter[3:0] = hex_in;
+                            counter = 3'b100;
                         end
                         3'b100: begin
-                            Guess_Password[3:0] = hex_in;
-                            counter_guess = 3'b001;
+                            Current_4hex_Enter[3:0] = hex_in;
+                            counter = 3'b001;
                         end
                         
                         
@@ -115,12 +114,10 @@ module main2(
             end
             
             default: begin //UNLOCKED OR INITIAL
-                if(change) begin
-                    if(Password_Set || Password_Set == 16'b000000000000) begin
-                        Current_Password = Password_Set;
-                        counter_set = 3'b000;
-                        Password_Set = Undefined_16bit;
-                    end
+                if(change && counter == 3'b100) begin
+                     Current_Password = Current_4hex_Enter;
+                     counter = 3'b000;
+                     Current_4hex_Enter = Undefined_16bit;
                 end
                 else if(set) begin
                     if(Current_Password || Current_Password == 16'b000000000000) begin
@@ -129,26 +126,26 @@ module main2(
                 end  
                 
                 else if(enter) begin
-                    case(counter_set)
+                    case(counter)
                         3'b000: begin
-                            Password_Set[15:12] = hex_in;
-                            counter_set = 3'b001;
+                            Current_4hex_Enter[15:12] = hex_in;
+                            counter = 3'b001;
                         end
                         3'b001: begin
-                            Password_Set[11:8] = hex_in;
-                            counter_set = 3'b010;
+                            Current_4hex_Enter[11:8] = hex_in;
+                            counter = 3'b010;
                         end
                         3'b010: begin
-                            Password_Set[7:4] = hex_in;
-                            counter_set = 3'b011;
+                            Current_4hex_Enter[7:4] = hex_in;
+                            counter = 3'b011;
                         end
                         3'b011: begin
-                            Password_Set[3:0] = hex_in;
-                            counter_set = 3'b100;
+                            Current_4hex_Enter[3:0] = hex_in;
+                            counter = 3'b100;
                         end
                         3'b100: begin
-                            Password_Set[3:0] = hex_in;
-                            counter_set = 3'b001;
+                            Current_4hex_Enter[3:0] = hex_in;
+                            counter = 3'b001;
                         end
                     endcase
                 end 
@@ -156,6 +153,11 @@ module main2(
             
         endcase
     end
+    
+    assign hex1 = Current_4hex_Enter[15:12];
+    assign hex2 = Current_4hex_Enter[11:8];
+    assign hex3 = Current_4hex_Enter[7:4];
+    assign hex4 = Current_4hex_Enter[3:0];
     
     
     
