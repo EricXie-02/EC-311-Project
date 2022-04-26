@@ -31,10 +31,8 @@ module Hex_SSD(
     input [3:0] hex3,
     input [3:0] hex4,
     
-    input enter,
-    input lock,
-    input unlock
-//    input counter
+    input [2:0] counter,
+    input [1:0] state
     
     );
     reg [5:0] enumerated_state;
@@ -44,81 +42,80 @@ module Hex_SSD(
     wire [2:0] LED_activating_counter;
     
     reg [4:0] h1, h2, h3, h4;
-    
-    reg [1:0] state;
-    
+   
     
     
     
     
-    
-    always @(posedge clock)
-    begin
-        h1 <= {1'b0, hex1};
-        h2 <= {1'b0, hex2};
-        h3 <= {1'b0, hex3};
-        h4 <= {1'b0, hex4};
-    end
     
     
 //    always @(posedge clock)
 //    begin
-//        if(state == 2'b00 || state == 2'b10)
-//        begin
-//            h1 <= 5'b10100;
-//            h2 <= 5'b10100;
-//            h3 <= 5'b10100;
-//            h4 <= 5'b10100;
-//        end
-//        else if(state == 2'b00 && count == 2'b01)
-//        begin
-//            h1 <= {1'b0, hex1};
-//            h2 <= 5'b10100;
-//            h3 <= 5'b10100;
-//            h4 <= 5'b10100;
-//        end
-//        else if(state == 2'b00 && count == 2'b01)
-//        begin
-//            h1 <= {1'b0, hex1};
-//            h2 <= {1'b0, hex2};
-//            h3 <= 5'b10100;
-//            h4 <= 5'b10100;
-//        end
-//        else if(state == 2'b00 && count == 2'b10)
-//        begin
-//            h1 <= {1'b0, hex1};
-//            h2 <= {1'b0, hex2};
-//            h3 <= {1'b0, hex3};
-//            h4 <= 5'b10100;
-//        end
-//        else if(state == 2'b00 && count == 2'b11)
-//        begin
-//            h1 <= {1'b0, hex1};
-//            h2 <= {1'b0, hex2};
-//            h3 <= {1'b0, hex3};
-//            h4 <= {1'b0, hex4};
-//        end
-        
+//        h1 <= {1'b0, hex1};
+//        h2 <= {1'b0, hex2};
+//        h3 <= {1'b0, hex3};
+//        h4 <= {1'b0, hex4};
 //    end
-
     
     
     always @(posedge clock)
     begin
-        if(lock)
+        if(counter == 3'b000)
         begin
-            state <= 2'b10;
-            
+            h1 <= 5'b10100;
+            h2 <= 5'b10100;
+            h3 <= 5'b10100;
+            h4 <= 5'b10100;
         end
-        else if(unlock)
+        else if(counter == 3'b001)
         begin
-            state <= 2'b01;
+            h1 <= {1'b0, hex1};
+            h2 <= 5'b10100;
+            h3 <= 5'b10100;
+            h4 <= 5'b10100;
         end
-        else if(enter)
+        else if(counter == 3'b010)
         begin
-            state <= 2'b00;
+            h1 <= {1'b0, hex1};
+            h2 <= {1'b0, hex2};
+            h3 <= 5'b10100;
+            h4 <= 5'b10100;
         end
+        else if(counter == 3'b011)
+        begin
+            h1 <= {1'b0, hex1};
+            h2 <= {1'b0, hex2};
+            h3 <= {1'b0, hex3};
+            h4 <= 5'b10100;
+        end
+        else if(counter == 3'b100)
+        begin
+            h1 <= {1'b0, hex1};
+            h2 <= {1'b0, hex2};
+            h3 <= {1'b0, hex3};
+            h4 <= {1'b0, hex4};
+        end
+        
     end
+
+    
+    
+//    always @(posedge clock)
+//    begin
+//        if(lock == 1'b1)
+//        begin
+//            state <= 2'b10;
+            
+//        end
+//        else if(unlock == 1'b1)
+//        begin
+//            state <= 2'b01;
+//        end
+//        else if(enter == 1'b1)
+//        begin
+//            state <= 2'b00;
+//        end
+//    end
     
     
     always @(posedge clock, posedge reset)
@@ -126,7 +123,7 @@ module Hex_SSD(
         if(reset)
         begin
             refresh_counter <= 0;
-            state <= 2'b00;
+//            state <= 2'b00;
             
         end
         else
